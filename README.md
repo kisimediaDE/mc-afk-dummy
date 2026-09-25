@@ -2,84 +2,98 @@
 
 # AFKDummyLimited
 
-### Du gehst offline. Deine Farm bleibt aktiv.
+### Feierabend für dich. Weiterbetrieb für deine Farm.
 
-Kostenlose, zeitlich begrenzte AFK-Dummies für Paper.
+Setze einen Dummy, wähle die Laufzeit und geh offline.<br>
+Dein Platz an der Farm bleibt besetzt — bis die Zeit abläuft.
 
-![Paper 26.2](https://img.shields.io/badge/Paper-26.2-38bdf8?style=for-the-badge)
-![Java 25](https://img.shields.io/badge/Java-25-f59e0b?style=for-the-badge)
-![MIT](https://img.shields.io/badge/Lizenz-MIT-a78bfa?style=for-the-badge)
-![Community](https://img.shields.io/badge/Edition-Community-34d399?style=for-the-badge)
+![Paper 26.2](https://img.shields.io/badge/PAPER-26.2-38bdf8?style=for-the-badge&labelColor=0f172a)
+![Java 25](https://img.shields.io/badge/JAVA-25-a78bfa?style=for-the-badge&labelColor=0f172a)
+![Kostenlos](https://img.shields.io/badge/KOSTENLOS-OHNE_ITEMKOSTEN-34d399?style=for-the-badge&labelColor=0f172a)
 
-[Schnellstart](#schnellstart) · [Befehle](#befehle) · [Konfiguration](#konfiguration) · [Tests](#tests--kompatibilität) · [Herkunft](#open-source--herkunft)
+<br>
+
+[![Jetzt herunterladen](https://img.shields.io/badge/↓_JETZT_HERUNTERLADEN-34d399?style=for-the-badge&labelColor=0f172a)](https://github.com/kisimediaDE/mc-afk-dummy/releases/latest)
+
+[Installation](#installation) &nbsp; · &nbsp; [Loslegen](#loslegen) &nbsp; · &nbsp; [Befehle](#befehle) &nbsp; · &nbsp; [Einstellungen](#einstellungen) &nbsp; · &nbsp; [FAQ](#faq)
 
 </div>
 
 ---
 
-Ein Dummy übernimmt deinen Platz an der Farm und bleibt auch nach deinem Logout aktiv. Du bestimmst die Laufzeit im Menü oder per Befehl. Nach Ablauf wird er automatisch entfernt. Ohne Itemkosten, Economy-Plugin oder Client-Mod.
+## Deine Farm. Deine Zeit.
 
-> **Unabhängiger Fork von AFKDummy 1.0.3.** Der Schwerpunkt liegt auf kostenlosen Sitzungen, zuverlässiger Restzeitspeicherung und Reparaturen für Paper 26.2. Der ursprüngliche Autor und das ursprüngliche Projekt bleiben ausdrücklich genannt.
+AFKDummyLimited bringt zeitlich begrenzte AFK-Dummies auf deinen Paper-Server. Spieler bedienen sie direkt im Spiel; als Serverbetreiber bestimmst du Laufzeiten und Limits. Kein Economy-Plugin, keine Itemkosten und keine zusätzliche Client-Mod nötig.
 
-## Was drin ist
+| 💤 Offline gehen | ⏱️ Laufzeit wählen | 🔄 Neustart? Kein Zeitverlust. |
+| :--- | :--- | :--- |
+| Dein Dummy bleibt nach dem Logout an der Farm. | Per Menü oder frei eingegeben, etwa `1h30m`. Nach Ablauf verschwindet er automatisch. | Bei sauberem Herunterfahren wird die Restzeit gespeichert. Während der Server aus ist, pausiert sie. |
 
-| Für Spieler | Für Serverbetreiber |
-| :--- | :--- |
-| Menü mit 30 Minuten bis 8 Stunden als Vorauswahl | Einstellbare Dauer und Dummy-Limits |
-| Freie Zeitangaben wie `30m`, `2h` und `1h30m` | Standard: 1 Dummy pro Spieler, 6 serverweit |
-| Farmbetrieb auch nach dem Logout | Restzeit pausiert während der Serverauszeit |
-| Restlaufzeit anzeigen und vorzeitig entfernen | Backup vor der ersten Datenmigration |
-| Dummy versetzen und Skin ändern | Keine bStats-Telemetrie oder Upstream-Updateabfragen |
+## Installation
 
-## Schnellstart
+**Du brauchst Paper 26.2 und Java 25.** Paper 26.3 wird nicht unterstützt.
 
-**[Neueste Version herunterladen](https://github.com/kisimediaDE/mc-afk-dummy/releases/latest)** — unter **Assets** die Datei `AFKDummyLimited-*.jar` auswählen.
+1. **Herunterladen:** Auf der [Downloadseite](https://github.com/kisimediaDE/mc-afk-dummy/releases/latest) unter **Assets** die Datei `AFKDummyLimited-…jar` auswählen.
+2. **Server stoppen:** Den Server vollständig herunterfahren.
+3. **Plugin ablegen:** Die heruntergeladene JAR in den Ordner `plugins` kopieren. Eine bereits vorhandene AFKDummy-JAR vorher entfernen.
+4. **Starten:** Server hochfahren und im Spiel `/afkdummy` eingeben.
 
-**Voraussetzungen:** Paper **26.2**, Java **25**. Referenzbuild: `26.2-123-5001879`.
+> **Schon AFKDummy installiert?** Behalte den Ordner `plugins/AFKDummy`, damit deine Einstellungen und gespeicherten Sitzungen erhalten bleiben. Tausche nur die JAR aus. Für Installation und Updates den Server immer vollständig neu starten.
 
-1. Server vollständig stoppen.
-2. `AFKDummyLimited-1.0.0.jar` in den Ordner `plugins` legen.
-3. Eine vorhandene AFKDummy-JAR vorher herausnehmen: Es darf nur eine Variante installiert sein.
-4. Server starten und `/afkdummy` öffnen.
+## Loslegen
+
+### Hinstellen. Zeit wählen. Ausloggen.
+
+Stell dich an deine Farm und öffne mit **`/afkdummy`** das Menü. Wähle eine Laufzeit — standardmäßig von **30 Minuten bis 8 Stunden** — und starte deinen Dummy.
+
+Lieber direkt per Befehl? So bleibt dein Dummy **eine Stunde und 30 Minuten**:
 
 ```text
 /afkdummy spawn 1h30m
-/afkdummy status
-/afkdummy remove
 ```
 
-### Von AFKDummy oder unserem Testbuild wechseln
+Mit `/afkdummy status` siehst du die Restzeit. Mit `/afkdummy remove` beendest du die Sitzung vorzeitig.
 
-Den vorhandenen Ordner **`plugins/AFKDummy` behalten**. Technischer Pluginname, Befehle und Berechtigungen bleiben kompatibel. Beim ersten Start mit dem neuen Restzeitformat werden vorhandene Konfigurationen und Sitzungsdaten in `backup-before-free-timer-*` gesichert. Beim Wechsel vom bisherigen Testbuild wird die bereits erfolgte Migration nicht wiederholt.
-
-**Eine vorhandene `config.json` hat Vorrang vor `config.yml`.** Alte Kostenfelder werden ignoriert; bestehende Limits werden übernommen. Für die Standardwerte unten eigene ältere Einstellungen gegebenenfalls anpassen.
-
-Zum Zurückwechseln den Server stoppen und ursprüngliche JAR **sowie passende gesicherte Konfiguration und Sitzungsdaten** wiederherstellen. Das Original versteht die pausierte Restzeit nicht. Kein Server-`/reload` verwenden.
+**Ab Werk:** ein Dummy pro Spieler, maximal sechs auf dem Server und bis zu 24 Stunden pro Sitzung.
 
 ## Befehle
 
+`/dummy` funktioniert als Kurzform von `/afkdummy`.
+
+| Befehl | Das passiert |
+| :--- | :--- |
+| `/afkdummy` | Menü öffnen |
+| `/afkdummy spawn <Dauer>` | Dummy an deinem Standort starten |
+| `/afkdummy status` | Verbleibende Laufzeit anzeigen |
+| `/afkdummy remove` | Deinen Dummy entfernen |
+| `/afkdummy tp` | Deinen Dummy zu dir versetzen |
+| `/afkdummy skin <Spieler>` | Den Skin eines Minecraft-Spielers übernehmen |
+
+**Zeitangaben:** `30m` für 30 Minuten, `2h` für zwei Stunden oder `1h30m` für beides. Unterstützt werden Tage (`d`), Stunden (`h`), Minuten (`m`) und Sekunden (`s`) in dieser Reihenfolge, bis zum eingestellten Maximum.
+
+<details>
+<summary><strong>🛠️ Verwaltung & Berechtigungen</strong></summary>
+
 | Befehl | Funktion |
 | :--- | :--- |
-| `/afkdummy` | Verwaltungsmenü öffnen |
-| `/afkdummy spawn <Dauer>` | Dummy am eigenen Standort starten |
-| `/afkdummy status` | Restlaufzeit anzeigen |
-| `/afkdummy remove` | Eigenen Dummy entfernen |
-| `/afkdummy tp` | Eigenen Dummy zum aktuellen Standort versetzen |
-| `/afkdummy skin <Spieler>` | Skin eines Minecraft-Spielers übernehmen |
-| `/afkdummy list` | Aktive Sitzungen auflisten — Admin |
-| `/afkdummy despawnall` | Alle Sitzungen beenden — Admin |
-| `/afkdummy reload` | Plugin-Konfiguration neu laden — Admin |
-| `/afkdummy debug` | Diagnose anzeigen — Admin |
+| `/afkdummy list` | Alle aktiven Sitzungen anzeigen |
+| `/afkdummy despawnall` | Alle Dummies entfernen |
+| `/afkdummy reload` | Plugin-Einstellungen neu laden |
 
-`/dummy` ist ein Alias. `afkdummy.use` ist für Spieler standardmäßig erlaubt, `afkdummy.admin` für Operatoren. Bei administrativ erhöhtem Besitzerlimit beziehen sich Entfernen und Versetzen auf einen eigenen Dummy; das Menü bietet zusätzlich das Entfernen aller eigenen Dummies per Shift-Klick.
+Spieler dürfen das Plugin standardmäßig nutzen. Mit einem Berechtigungsplugin kannst du den Zugriff steuern:
 
-**Dauer:** `d`, `h`, `m`, `s`, in dieser Reihenfolge kombinierbar. Null, negative Werte und Angaben über dem konfigurierten Maximum werden abgewiesen. Ein erneuter Spawn bei ausgeschöpftem Limit verlängert die bestehende Sitzung nicht.
+| Berechtigung | Zugriff | Standard |
+| :--- | :--- | :--- |
+| `afkdummy.use` | Spielermenü und eigene Dummies | Alle Spieler |
+| `afkdummy.admin` | Verwaltungsbefehle | Operatoren |
 
-Die fehlerhafte **Umbenennungsfunktion wurde aus Menü und Befehlen entfernt**. Bereits gespeicherte Namensfelder bleiben für die Datenkompatibilität erhalten.
+Wenn du mehrere Dummies pro Spieler erlaubst, beziehen sich Entfernen und Versetzen per Befehl auf einen eigenen Dummy. Im Menü lassen sich per Shift-Klick alle eigenen Dummies entfernen.
 
-## Konfiguration
+</details>
 
-`plugins/AFKDummy/config.yml`:
+## Einstellungen
+
+Nach dem ersten Start findest du die Einstellungen unter **`plugins/AFKDummy/config.yml`**. Damit legst du fest, wie viele Dummies erlaubt sind und welche Laufzeiten im Menü erscheinen. Die wichtigsten Werte im Überblick:
 
 ```yaml
 settings:
@@ -87,86 +101,70 @@ settings:
   max-server-wide-dummies: 6
   max-duration: '24h'
   duration-options: ['30m', '1h', '2h', '4h', '8h']
-  respawn-delay-ticks: 40
-  debug: false
 ```
 
-Bei JSON stehen dieselben Schlüssel im Objekt `settings`. Das Menü unterstützt bis zu 18 Zeitoptionen. Ungültige Optionen werden mit einer Warnung übersprungen; eine ungültige maximale Laufzeit fällt auf 24 Stunden zurück. Jede neue Sitzung ist befristet und kostenlos.
+| Einstellung | Bedeutung |
+| :--- | :--- |
+| `max-dummies-per-player` | Maximale Anzahl pro Spieler |
+| `max-server-wide-dummies` | Maximale Anzahl auf dem gesamten Server |
+| `max-duration` | Längste erlaubte Sitzung |
+| `duration-options` | Laufzeiten im Menü; bis zu 18 Auswahlmöglichkeiten |
+
+Die übrigen Werte kannst du auf der Voreinstellung lassen. Speichere deine Änderungen und lade sie mit `/afkdummy reload` neu.
+
+> **Bei einer bestehenden Installation:** Falls `plugins/AFKDummy/config.json` vorhanden ist, wird diese anstelle der `config.yml` verwendet. Ändere dann die entsprechenden Werte im Abschnitt `settings` der JSON-Datei.
+
+## FAQ
 
 <details>
-<summary><strong>So funktionieren Restzeit und Speicherung</strong></summary>
+<summary><strong>Läuft meine Farm genauso wie mit einem echten Spieler?</strong></summary>
 
-- Während der Server läuft, wird die Laufzeit anhand verstrichener Zeit berechnet. Besitzer-Logout und niedrige TPS halten diese Uhr nicht an.
-- Ablaufprüfung etwa einmal pro Sekunde; bei einem blockierten Serverthread entsprechend später.
-- Speicherung bei Zustandsänderungen, sauberem Shutdown und etwa alle 30 Sekunden.
-- Während der Server ausgeschaltet ist, bleibt die gespeicherte Restzeit erhalten.
-- Bei einem Absturz kann der Fortschritt seit der letzten erfolgreichen Speicherung verloren gehen; bei normaler TPS ungefähr 30 Sekunden.
-- Alte Sitzungen werden beim ersten Umstieg aus ihrem bisherigen Ablaufzeitpunkt umgerechnet. Bereits abgelaufene Sitzungen werden nicht wiederbelebt.
-- Fehlende Welten oder ausgeschöpfte Limits lassen gespeicherte Sitzungen pausiert. Die Wiederherstellung wird beim nächsten Neustart erneut versucht.
-- Beschädigte Sitzungsdaten brechen die Initialisierung ab, statt die Datei leer zu überschreiben.
+Der Dummy hält deinen Platz an der Farm besetzt. Wie viel die Farm produziert, hängt weiterhin von Farmbau, Simulation Distance, Moblimits und den Regeln deiner Welt ab. Eine identische Ausbeute ist nicht garantiert.
 
 </details>
 
-## Tests & Kompatibilität
+<details>
+<summary><strong>Was passiert beim Logout oder Serverneustart?</strong></summary>
 
-| Bereich | Stand |
-| :--- | :--- |
-| Paper `26.2-123-5001879` / Java 25 | Lokale Server- und Lifecycle-Tests erfolgreich |
-| Livebetrieb mit vier Personen | Vom Serverteam erfolgreich gemeldet: wiederholte Joins, einzelne/mehrere Dummies, kurze/lange Laufzeiten, Nachtbetrieb und Neustart |
-| Namensänderung | Im Live-Test fehlerhaft; Benutzerfunktion entfernt |
-| Pflanzen und natürliche Mobspawns | Lokal beobachtet; kein Nachweis identischer Farm-Ausbeute |
-| Paper 26.3 | **Nicht unterstützt**; eigene Prüfung erforderlich |
-| Andere Paper-Builds, Forks und Client-/Plugin-Kombinationen | Keine pauschale Kompatibilitätszusage |
+Beim Logout bleibt dein Dummy aktiv und die Zeit läuft weiter. Beim sauberen Herunterfahren wird die Restzeit gespeichert; während der Server aus ist, vergeht keine Sitzungszeit. Nach dem Start werden gespeicherte Dummies wiederhergestellt, sofern ihre Welt verfügbar ist und die Limits es zulassen.
 
-Der Livebericht bezieht sich auf den vorherigen Testbuild. Die Community-JAR wird separat gebaut und lokal geprüft. Details und verbleibende Tests stehen im [Testprotokoll](docs/ABNAHME.md).
+Bei einem Serverabsturz kann der seit der letzten Speicherung vergangene Zeitraum verloren gehen — normalerweise bis zu etwa 30 Sekunden.
 
-### Betrieb auf kleinen Servern
+</details>
 
-Dummies aktivieren echte Farmarbeit: Chunks, Entities, Mobspawns und Redstone kosten Rechenzeit. **Sechs Dummies sind ein Funktionslimit, keine Leistungszusage** für zwei CPU-Kerne und 6 GB RAM. Simulation Distance und Farmbau bestimmen die Last.
+<details>
+<summary><strong>Wie viele Dummies verträgt mein Server?</strong></summary>
 
-Dummies bleiben in Papers Spielerregistrierung und können in Spielerzahlen oder anderen Plugins mitgezählt werden. Sie tragen `NPC`-Metadaten und werden beim Schlafen ignoriert. Farmen unterliegen weiterhin den normalen Welt-, Mobcap- und Abstandsregeln. Skin-Abfragen können Mojangs Dienste kontaktieren.
+Das hängt von deinen Farmen und der Serverleistung ab. Aktive Farmen verursachen auch mit Dummies Rechenlast. Starte mit wenigen Dummies und erhöhe das Limit nur, wenn dein Server flüssig läuft. Die Voreinstellung von sechs ist ein Mengenlimit, keine Leistungszusage.
 
-## Selbst bauen
+</details>
 
-JDK 25 installieren und `JAVA_HOME` darauf setzen:
+<details>
+<summary><strong>Beeinflussen Dummies Schlafen oder Spielerzahlen?</strong></summary>
 
-```powershell
-.\gradlew.bat test shadowJar
-```
+Beim Schlafen werden Dummies ignoriert. In der Spielerzahl und bei anderen Plugins können sie jedoch als Spieler mitgezählt werden.
 
-Unter Linux/macOS: `./gradlew test shadowJar`. Die fertige Plugin-JAR liegt in `build/libs`. Der Build nutzt fest `paperweight.paperDevBundle("26.2.build.123-stable")`.
+</details>
 
-`integrationJar` erstellt einen **separaten lokalen Testtreiber**. Er gehört nicht auf einen produktiven Server und ist nicht Bestandteil des Releasepakets. `test` allein startet keinen Minecraft-Server.
+<details>
+<summary><strong>Kann ich eine laufende Sitzung verlängern?</strong></summary>
 
-## Release veröffentlichen
+Ein erneuter Spawn verlängert eine bestehende Sitzung nicht. Entferne deinen Dummy und starte eine neue Sitzung mit der gewünschten Dauer.
 
-Die GitHub Action [Release](.github/workflows/release.yml) startet beim Push eines Versions-Tags. Sie baut mit Java 25, führt die Unit-Tests aus, prüft das Releasepaket und veröffentlicht JAR, Quellcode-ZIP und SHA-256-Prüfsummen als GitHub Release. Ein eigenes Secret ist nicht nötig; die Action verwendet das GitHub-Token des Workflows.
+</details>
 
-1. `version` in `build.gradle.kts` setzen und `CHANGELOG.md` aktualisieren.
-2. Änderungen einschließlich des Workflows committen und pushen.
-3. Passenden Tag anlegen und pushen, zum Beispiel für Version `1.0.0`:
-
-```shell
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-Tag und Buildversion müssen genau zusammenpassen (`v1.0.0` → `1.0.0`). Der Workflow unterstützt stabile Versionen im Format `X.Y.Z`. Den Fortschritt findest du unter **Actions → Release**, die fertigen Downloads unter **Releases**. Damit alle die Dateien herunterladen können, muss das Repository öffentlich sein.
-
-Falls der Upload abbricht und ein Entwurf zurückbleibt, diesen unter **Releases** löschen und den fehlgeschlagenen Workflow erneut starten. Bereits veröffentlichte Versionen werden nicht überschrieben; für Änderungen eine neue Versionsnummer verwenden.
-
-## Fehler melden
-
-Für einen Bericht bitte Pluginversion, Paper-Build, Schritte zum Nachstellen und die zeitlich passenden Logs angeben. Bei einem Disconnect ist besonders der **Client-Log oder Disconnect-Bericht** hilfreich; `Disconnected` allein genügt nicht. Den Bericht beim Betreiber dieser Community-Version einreichen.
-
-## Open Source & Herkunft
-
-Dieser Fork basiert auf **[AFKDummy / FakePlayerFarm](https://github.com/subham1920/FakePlayerFarm)** von **subham1920 / FakePlayerFarm und Mitwirkenden**, Ausgangsstand AFKDummy 1.0.3. Es handelt sich um eine Weiterentwicklung mit umfangreich übernommenem Originalcode.
-
-Die ursprüngliche README und [Modrinth-Seite](https://modrinth.com/plugin/afkdummy) deklarieren MIT. Da der verwendete Quellstand keine separate Lizenzdatei enthielt, dokumentiert [NOTICE](NOTICE) die Herkunft der hier beigefügten [MIT-Lizenz](LICENSE). Weitere Informationen: [Änderungen](CHANGELOG.md), [Quellstand](docs/UPSTREAM.md), [Drittanbieter-Lizenzen](THIRD_PARTY_NOTICES.md).
+---
 
 <div align="center">
 
-<sub>Ein unabhängiges Community-Projekt. Kein offizielles Minecraft-Produkt und nicht mit Mojang oder Microsoft verbunden.</sub>
+**Bereit für deine nächste AFK-Pause?**
+
+[Plugin herunterladen](https://github.com/kisimediaDE/mc-afk-dummy/releases/latest) &nbsp; · &nbsp; [Zur Installation](#installation)
+
+<br>
+
+<sub>Basierend auf AFKDummy / FakePlayerFarm von subham1920 und Mitwirkenden.<br>
+<a href="NOTICE">Herkunft</a> · <a href="LICENSE">MIT-Lizenz</a> · <a href="THIRD_PARTY_NOTICES.md">Drittanbieter-Lizenzen</a><br>
+Kein offizielles Minecraft-Produkt. Nicht mit Mojang oder Microsoft verbunden.</sub>
 
 </div>
