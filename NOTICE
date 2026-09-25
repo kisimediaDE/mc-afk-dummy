@@ -1,0 +1,22 @@
+AFKDummyLimited
+
+An independently maintained fork of AFKDummy / FakePlayerFarm 1.0.3.
+Original author/project attribution: subham1920 / FakePlayerFarm and contributors.
+Original repository: https://github.com/subham1920/FakePlayerFarm
+Original listing: https://modrinth.com/plugin/afkdummy
+Base commit: ca8bde931e7c71b7b32b6e58432d5ddcbb5a3e74
+
+The upstream README and Modrinth listing declare the MIT license. The source
+archive used for this fork did not contain a separate LICENSE file or an
+explicit copyright notice. The included MIT permission text has been added
+by this fork based on that declaration. The attribution above is descriptive;
+it is not represented as a verbatim upstream copyright statement.
+
+Fork changes include free timed sessions, persisted remaining duration,
+profile isolation, player registration and tracking fixes, connection cleanup,
+and removal of the user-facing rename feature. See docs/UPSTREAM.md and
+CHANGELOG.md. Original authors are not responsible for support of this fork.
+
+Dependency licenses are listed in THIRD_PARTY_NOTICES.md and licenses/.
+Not an official Minecraft product. Not approved by or associated with
+Mojang or Microsoft.

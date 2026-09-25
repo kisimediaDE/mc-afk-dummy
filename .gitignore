@@ -1,0 +1,91 @@
+# ==============================================
+# Gradle & Build Artifacts
+# ==============================================
+.gradle/
+build/
+out/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# ==============================================
+# Paperweight & Server Run Caches
+# ==============================================
+.paperweight/
+run/
+cache/
+logs/
+crash-reports/
+world/
+world_nether/
+world_the_end/
+
+# ==============================================
+# IDEs, Editors & Tooling
+# ==============================================
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+.run/
+
+# Eclipse
+.classpath
+.project
+.settings/
+.factorypath
+
+# VS Code
+.vscode/
+
+# Sublime, Fleet & NetBeans
+*.sublime-workspace
+*.sublime-project
+.nb-gradle/
+nbproject/
+.fleet/
+
+# Editor Swap & Temp Files
+*~
+*.swp
+*.swo
+*.tmp
+*.bak
+
+# ==============================================
+# OS Generated Files
+# ==============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ==============================================
+# Java & JVM Crash Logs
+# ==============================================
+hs_err_pid*
+replay_pid*
+
+# ==============================================
+# Logs & Runtime Data
+# ==============================================
+*.log
+debug.log
+latest-debug.txt
+latest-debug*.txt
+dummies.json
+dummies.json.tmp
+plugins/
+
+.upstream/
+.integration/
+.gradle-home/
+dist/

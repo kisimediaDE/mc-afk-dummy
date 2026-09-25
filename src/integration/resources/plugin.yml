@@ -1,0 +1,8 @@
+name: AFKDummyProbe
+version: '1'
+main: com.plugin.afkdummy.probe.Probe
+api-version: '26.2'
+depend: [AFKDummy]
+commands:
+  afkprobe:
+    permission: afkdummy.admin

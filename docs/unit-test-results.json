@@ -1,0 +1,324 @@
+[
+  {
+    "suite": "Command Tests",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "calculateCost(int hours)",
+    "tests": 150,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Default & Validation Loading",
+    "tests": 9,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "getPaymentItemDisplayName()",
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Direct config.json File Parsing & Mutation Tests",
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Despawn Operations",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Query & Limit Methods",
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Skin & Custom Name Operations",
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Teleport & Relocate Operations",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "World Unload & Events",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "generateDummyUUID Tests",
+    "tests": 102,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "generateProfileName Tests",
+    "tests": 124,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Delegation to DummyPlayer",
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Time & Expiration calculation",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "DummySession Tests",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Chat Event Interception",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Input Request Lifecycle",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Menu Behavior & Click Routing",
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "GUIListener Tests",
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Damage Prevention",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Entity Interaction",
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Target & Knockback Prevention",
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Vehicles & Portals",
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "World Unload",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Expiration and Time calculation",
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "JSON Serialization Tests",
+    "tests": 100,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Location and Strings",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "DummyData Tests",
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "com.plugin.afkdummy.storage.PausedStorageTest",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "CRUD Operations",
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Load & Save Tests",
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Thread Safety Tests",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "DebugLogger Tests",
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "com.plugin.afkdummy.util.DurationParserTest",
+    "tests": 12,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "countItems(Player player, Material material)",
+    "tests": 12,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "hasEnoughItems(Player player, Material material, int required)",
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "removeItems(Player player, Material material, int amount)",
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "ItemCostUtil Tests",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "com.plugin.afkdummy.util.ProfileIsolationTest",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "SkinUtil Tests",
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Conversion Methods",
+    "tests": 212,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "formatDurationLong(long millis)",
+    "tests": 271,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "formatDuration(long millis)",
+    "tests": 575,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "TimeUtil Tests",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Configuration & Permission Behavior",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "suite": "Version Comparison Tests",
+    "tests": 13,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+]
