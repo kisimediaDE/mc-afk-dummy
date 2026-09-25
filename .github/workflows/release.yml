@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Verify release version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          version = re.search(r'^version = "([^"]+)"', Path('build.gradle.kts').read_text(), re.M)[1]
+          if not re.fullmatch(r'\d+\.\d+\.\d+', version):
+              raise SystemExit('Releases require a stable version such as 1.0.0')
+          if os.environ['RELEASE_TAG'] != f'v{version}':
+              raise SystemExit(f'Tag must match build.gradle.kts: v{version}')
+          with open(os.environ['GITHUB_ENV'], 'a') as output:
+              output.write(f'RELEASE_VERSION={version}\n')
+          PY
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: gradle
+
+      - name: Run tests and build plugin
+        run: bash ./gradlew --no-daemon clean test shadowJar
+
+      - name: Package and verify release files
+        run: python3 tools/package_release.py
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          release_dir="dist/AFKDummyLimited-${RELEASE_VERSION}"
+          cat > release-notes.md <<'EOF'
+          ## Installation
+          Die Datei `AFKDummyLimited-*.jar` herunterladen und bei gestopptem Server in `plugins` legen. Eine vorhandene AFKDummy-JAR vorher entfernen.
+
+          Voraussetzung: **Paper 26.2 und Java 25**. Den vorhandenen Ordner `plugins/AFKDummy` beim Update behalten.
+
+          Das Sources-ZIP enthält den Quellcode; `SHA256SUMS` enthält die Prüfsummen der Downloads.
+          EOF
+          gh release create "$RELEASE_TAG" \
+            "$release_dir/AFKDummyLimited-${RELEASE_VERSION}.jar" \
+            "$release_dir/AFKDummyLimited-${RELEASE_VERSION}-sources.zip" \
+            "$release_dir/SHA256SUMS" \
+            --verify-tag --draft \
+            --title "AFKDummyLimited ${RELEASE_VERSION}" \
+            --notes-file release-notes.md --generate-notes
+          gh release edit "$RELEASE_TAG" --draft=false --latest

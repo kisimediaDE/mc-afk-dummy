@@ -42,7 +42,7 @@ for directory in ('docs', 'licenses'):
 
 # Include only project sources, build tools and public documentation, never server data/caches.
 source_files = [ROOT / f for f in top + ['build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'gradlew', 'gradlew.bat', '.gitignore']]
-for directory in ('src', 'gradle', 'licenses', 'tools'):
+for directory in ('src', 'gradle', 'licenses', 'tools', '.github'):
     source_files += [p for p in (ROOT / directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts]
 source_files += [ROOT / 'docs' / f for f in docs]
 with ZipFile(release / f'{name}-sources.zip', 'w', ZIP_DEFLATED) as archive:

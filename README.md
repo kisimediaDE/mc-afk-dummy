@@ -33,6 +33,8 @@ Ein Dummy übernimmt deinen Platz an der Farm und bleibt auch nach deinem Logout
 
 ## Schnellstart
 
+**[Neueste Version herunterladen](https://github.com/kisimediaDE/mc-afk-dummy/releases/latest)** — unter **Assets** die Datei `AFKDummyLimited-*.jar` auswählen.
+
 **Voraussetzungen:** Paper **26.2**, Java **25**. Referenzbuild: `26.2-123-5001879`.
 
 1. Server vollständig stoppen.
@@ -135,6 +137,23 @@ JDK 25 installieren und `JAVA_HOME` darauf setzen:
 Unter Linux/macOS: `./gradlew test shadowJar`. Die fertige Plugin-JAR liegt in `build/libs`. Der Build nutzt fest `paperweight.paperDevBundle("26.2.build.123-stable")`.
 
 `integrationJar` erstellt einen **separaten lokalen Testtreiber**. Er gehört nicht auf einen produktiven Server und ist nicht Bestandteil des Releasepakets. `test` allein startet keinen Minecraft-Server.
+
+## Release veröffentlichen
+
+Die GitHub Action [Release](.github/workflows/release.yml) startet beim Push eines Versions-Tags. Sie baut mit Java 25, führt die Unit-Tests aus, prüft das Releasepaket und veröffentlicht JAR, Quellcode-ZIP und SHA-256-Prüfsummen als GitHub Release. Ein eigenes Secret ist nicht nötig; die Action verwendet das GitHub-Token des Workflows.
+
+1. `version` in `build.gradle.kts` setzen und `CHANGELOG.md` aktualisieren.
+2. Änderungen einschließlich des Workflows committen und pushen.
+3. Passenden Tag anlegen und pushen, zum Beispiel für Version `1.0.0`:
+
+```shell
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Tag und Buildversion müssen genau zusammenpassen (`v1.0.0` → `1.0.0`). Der Workflow unterstützt stabile Versionen im Format `X.Y.Z`. Den Fortschritt findest du unter **Actions → Release**, die fertigen Downloads unter **Releases**. Damit alle die Dateien herunterladen können, muss das Repository öffentlich sein.
+
+Falls der Upload abbricht und ein Entwurf zurückbleibt, diesen unter **Releases** löschen und den fehlgeschlagenen Workflow erneut starten. Bereits veröffentlichte Versionen werden nicht überschrieben; für Änderungen eine neue Versionsnummer verwenden.
 
 ## Fehler melden
 
