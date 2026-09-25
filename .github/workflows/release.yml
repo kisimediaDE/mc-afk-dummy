@@ -33,13 +33,17 @@ jobs:
           import re
           from pathlib import Path
 
-          version = re.search(r'^version = "([^"]+)"', Path('build.gradle.kts').read_text(), re.M)[1]
+          targets = {'v1.1.0': ('1.1.0', '26.2'), 'v2.1.0': ('2.1.0', '26.3')}
+          if os.environ['RELEASE_TAG'] not in targets:
+              raise SystemExit('Add the release version and Paper target to the build and release mapping first')
+          version, target = targets[os.environ['RELEASE_TAG']]
           if not re.fullmatch(r'\d+\.\d+\.\d+', version):
               raise SystemExit('Releases require a stable version such as 1.0.0')
           if os.environ['RELEASE_TAG'] != f'v{version}':
               raise SystemExit(f'Tag must match build.gradle.kts: v{version}')
           with open(os.environ['GITHUB_ENV'], 'a') as output:
               output.write(f'RELEASE_VERSION={version}\n')
+              output.write(f'TARGET_PAPER={target}\n')
           PY
 
       - name: Set up Java 25
@@ -50,10 +54,10 @@ jobs:
           cache: gradle
 
       - name: Run tests and build plugin
-        run: bash ./gradlew --no-daemon clean test shadowJar
+        run: bash ./gradlew --no-daemon clean test shadowJar -PtargetPaper="$TARGET_PAPER"
 
       - name: Package and verify release files
-        run: python3 tools/package_release.py
+        run: python3 tools/package_release.py --target-paper "$TARGET_PAPER"
 
       - name: Publish GitHub release
         env:
@@ -62,21 +66,15 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           release_dir="dist/AFKDummyLimited-${RELEASE_VERSION}"
-          cat > release-notes.md <<'EOF'
-          ## Installation
-          Die Datei `AFKDummyLimited-*.jar` herunterladen und bei gestopptem Server in `plugins` legen. Eine vorhandene AFKDummy-JAR vorher entfernen.
-
-          Voraussetzung: **Paper 26.3 und Java 25**. Den vorhandenen Ordner `plugins/AFKDummy` beim Update behalten.
-
-          Version 2.0.0 ist für Paper 26.3 (getesteter Build: 41, Alpha). Für Paper 26.2 weiterhin [Version 1.0.0](https://github.com/kisimediaDE/mc-afk-dummy/releases/tag/v1.0.0) verwenden. Paper 26.3 wird derzeit als Alpha angeboten. Testumfang und Grenzen stehen in `docs/ABNAHME.md` im Sources-ZIP.
-
-          Das Sources-ZIP enthält den Quellcode; `SHA256SUMS` enthält die Prüfsummen der Downloads.
-          EOF
           gh release create "$RELEASE_TAG" \
             "$release_dir/AFKDummyLimited-${RELEASE_VERSION}.jar" \
             "$release_dir/AFKDummyLimited-${RELEASE_VERSION}-sources.zip" \
             "$release_dir/SHA256SUMS" \
             --verify-tag --draft \
             --title "AFKDummyLimited ${RELEASE_VERSION}" \
-            --notes-file release-notes.md --generate-notes
-          gh release edit "$RELEASE_TAG" --draft=false --latest
+            --notes-file "docs/releases/${RELEASE_VERSION}.md"
+          if [ "$TARGET_PAPER" = "26.3" ]; then
+            gh release edit "$RELEASE_TAG" --draft=false --latest
+          else
+            gh release edit "$RELEASE_TAG" --draft=false --latest=false
+          fi

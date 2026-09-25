@@ -14,6 +14,10 @@ public final class Probe extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof ConsoleCommandSender)) return true;
         try {
+            if (args.length > 0 && args[0].equals("bench")) {
+                new LoadBenchmark(this, target).start(args[1]);
+                return true;
+            }
             if (args.length > 0 && args[0].equals("logout")) {
                 actors.forEach(DummyPlayer::remove); actors.clear();
                 getLogger().info("PROBE OWNERS OFFLINE"); return true;
@@ -23,6 +27,9 @@ public final class Probe extends JavaPlugin {
                     var dummy = session.getDummyPlayer();
                     var player = dummy.getBukkitPlayer();
                     if (!player.isValid() || getServer().getPlayer(player.getUniqueId()) != player || !player.getWorld().getPlayers().contains(player)) throw new AssertionError("Inconsistent player registration");
+                    if (!target.getDummyManager().isDummyPlayer(player)
+                            || target.getDummyManager().getSessionByEntityId(player.getEntityId()).orElseThrow() != session)
+                        throw new AssertionError("Inconsistent dummy lookup index");
                     var nearby = player.getWorld().getNearbyEntities(player.getLocation(), 128, 128, 128);
                     long monsters = nearby.stream().filter(org.bukkit.entity.Monster.class::isInstance).count();
                     getLogger().info("PROBE STATE " + session.getSessionId() + " remaining=" + session.getRemainingTimeMs() + " monsters=" + monsters + " chunks=" + player.getWorld().getLoadedChunks().length);

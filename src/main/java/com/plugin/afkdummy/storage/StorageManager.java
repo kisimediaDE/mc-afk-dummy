@@ -34,6 +34,10 @@ public class StorageManager {
     private final Object fileLock = new Object();
     private final java.util.concurrent.atomic.AtomicLong revisions = new java.util.concurrent.atomic.AtomicLong();
     private long writtenRevision;
+    private final java.util.concurrent.atomic.AtomicBoolean saveScheduled = new java.util.concurrent.atomic.AtomicBoolean();
+    private final java.util.concurrent.atomic.AtomicBoolean writerRunning = new java.util.concurrent.atomic.AtomicBoolean();
+    private final java.util.concurrent.atomic.AtomicReference<Snapshot> pending = new java.util.concurrent.atomic.AtomicReference<>();
+    private record Snapshot(long revision, List<DummyData> entries) {}
 
     /**
      * Constructs a new StorageManager.
@@ -92,18 +96,48 @@ public class StorageManager {
      * Creates parent directories if they don't exist and writes atomically.
      */
     public void saveAsync() {
-        final String jsonContent;
-        final long revision = revisions.incrementAndGet();
-        synchronized (dataList) {
-            jsonContent = gson.toJson(new ArrayList<>(dataList), DATA_LIST_TYPE);
+        if (!plugin.isEnabled()) {
+            saveSync();
+            return;
         }
+        // Collapse all mutations in a tick into one detached snapshot.
+        if (saveScheduled.compareAndSet(false, true)) {
+            try {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    saveScheduled.set(false);
+                    pending.set(snapshot());
+                    startWriter();
+                });
+            } catch (RuntimeException e) {
+                saveScheduled.set(false);
+                throw e;
+            }
+        }
+    }
 
-        if (plugin.isEnabled()) {
+    private Snapshot snapshot() {
+        synchronized (dataList) {
+            return new Snapshot(revisions.incrementAndGet(), dataList.stream().map(DummyData::copy).toList());
+        }
+    }
+
+    private void startWriter() {
+        if (!writerRunning.compareAndSet(false, true)) return;
+        try {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                writeToFile(jsonContent, revision);
+                try {
+                    Snapshot next;
+                    while ((next = pending.getAndSet(null)) != null) {
+                        writeToFile(gson.toJson(next.entries(), DATA_LIST_TYPE), next.revision());
+                    }
+                } finally {
+                    writerRunning.set(false);
+                    if (pending.get() != null && plugin.isEnabled()) startWriter();
+                }
             });
-        } else {
-            writeToFile(jsonContent, revision);
+        } catch (RuntimeException e) {
+            writerRunning.set(false);
+            throw e;
         }
     }
 
@@ -112,12 +146,8 @@ public class StorageManager {
      * Used during plugin disable when the scheduler is no longer available.
      */
     public void saveSync() {
-        final String jsonContent;
-        final long revision = revisions.incrementAndGet();
-        synchronized (dataList) {
-            jsonContent = gson.toJson(new ArrayList<>(dataList), DATA_LIST_TYPE);
-        }
-        writeToFile(jsonContent, revision);
+        Snapshot latest = snapshot();
+        writeToFile(gson.toJson(latest.entries(), DATA_LIST_TYPE), latest.revision());
     }
 
     /**

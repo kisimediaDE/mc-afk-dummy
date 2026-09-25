@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,11 +29,9 @@ class DummyManagerTest {
     private ConfigManager config;
     private StorageManager storage;
     private DummyManager manager;
-    private Map<UUID, DummySession> activeSessions;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
-    void setUp() throws Exception {
+    void setUp() {
         plugin = mock(AFKDummyPlugin.class);
         config = mock(ConfigManager.class);
         storage = mock(StorageManager.class);
@@ -46,10 +43,6 @@ class DummyManagerTest {
 
         manager = new DummyManager(plugin, config, storage);
 
-        // Access internal activeSessions map via reflection for state verification/injection
-        Field field = DummyManager.class.getDeclaredField("activeSessions");
-        field.setAccessible(true);
-        activeSessions = (Map<UUID, DummySession>) field.get(manager);
     }
 
     private DummySession createMockSession(UUID sessionId, UUID ownerUUID, String ownerName, int entityId, Location loc, boolean isSpawned) {
@@ -62,6 +55,20 @@ class DummyManagerTest {
         when(dp.getSessionId()).thenReturn(sessionId);
 
         return new DummySession(sessionId, dp, ownerUUID, ownerName, System.currentTimeMillis() + 60000L);
+    }
+
+    @Test void delayedRestoreDoesNotRespawnSessionsCreatedAfterEnable() {
+        UUID id = UUID.randomUUID(), owner = UUID.randomUUID();
+        var session = createMockSession(id, owner, "Owner", 17, null, true);
+        manager.registerSession(id, session);
+        var data = mock(com.plugin.afkdummy.storage.DummyData.class);
+        when(data.getSessionId()).thenReturn(id);
+        when(storage.getAllEntries()).thenReturn(List.of(data));
+        manager.respawnFromStorage();
+        assertSame(session, manager.getSession(id).orElseThrow());
+        assertTrue(manager.isDummyEntity(17));
+        verify(data, never()).toLocation();
+        verify(session.getDummyPlayer(), never()).spawn();
     }
 
     @Nested
@@ -82,9 +89,9 @@ class DummyManagerTest {
             UUID owner1 = UUID.randomUUID();
             UUID owner2 = UUID.randomUUID();
 
-            activeSessions.put(UUID.randomUUID(), createMockSession(UUID.randomUUID(), owner1, "Steve", 1, null, true));
-            activeSessions.put(UUID.randomUUID(), createMockSession(UUID.randomUUID(), owner1, "Steve", 2, null, true));
-            activeSessions.put(UUID.randomUUID(), createMockSession(UUID.randomUUID(), owner2, "Alex", 3, null, true));
+            manager.registerSession(UUID.randomUUID(), createMockSession(UUID.randomUUID(), owner1, "Steve", 1, null, true));
+            manager.registerSession(UUID.randomUUID(), createMockSession(UUID.randomUUID(), owner1, "Steve", 2, null, true));
+            manager.registerSession(UUID.randomUUID(), createMockSession(UUID.randomUUID(), owner2, "Alex", 3, null, true));
 
             assertEquals(3, manager.getActiveCount());
             assertEquals(2, manager.getActiveCountByOwner(owner1));
@@ -102,10 +109,10 @@ class DummyManagerTest {
 
             assertTrue(manager.canSpawnMore(owner));
 
-            activeSessions.put(UUID.randomUUID(), createMockSession(UUID.randomUUID(), owner, "Steve", 1, null, true));
+            manager.registerSession(UUID.randomUUID(), createMockSession(UUID.randomUUID(), owner, "Steve", 1, null, true));
             assertTrue(manager.canSpawnMore(owner));
 
-            activeSessions.put(UUID.randomUUID(), createMockSession(UUID.randomUUID(), owner, "Steve", 2, null, true));
+            manager.registerSession(UUID.randomUUID(), createMockSession(UUID.randomUUID(), owner, "Steve", 2, null, true));
             assertFalse(manager.canSpawnMore(owner));
         }
 
@@ -115,7 +122,7 @@ class DummyManagerTest {
             UUID sId = UUID.randomUUID();
             UUID oId = UUID.randomUUID();
             DummySession session = createMockSession(sId, oId, "Steve", 1, null, true);
-            activeSessions.put(sId, session);
+            manager.registerSession(sId, session);
 
             Optional<DummySession> opt = manager.getSession(sId);
             assertTrue(opt.isPresent());
@@ -131,7 +138,7 @@ class DummyManagerTest {
         void testEntityIdQueries() {
             UUID sId = UUID.randomUUID();
             DummySession session = createMockSession(sId, UUID.randomUUID(), "Steve", 123, null, true);
-            activeSessions.put(sId, session);
+            manager.registerSession(sId, session);
 
             assertTrue(manager.isDummyEntity(123));
             assertFalse(manager.isDummyEntity(999));
@@ -146,7 +153,7 @@ class DummyManagerTest {
         void testPlayerQueries() {
             UUID sId = UUID.randomUUID();
             DummySession session = createMockSession(sId, UUID.randomUUID(), "Steve", 123, null, true);
-            activeSessions.put(sId, session);
+            manager.registerSession(sId, session);
 
             Player dummyBukkit = session.getDummyPlayer().getBukkitPlayer();
             Player otherPlayer = mock(Player.class);
@@ -168,12 +175,14 @@ class DummyManagerTest {
         void testDespawnDummy() {
             UUID sId = UUID.randomUUID();
             DummySession session = createMockSession(sId, UUID.randomUUID(), "Steve", 1, null, true);
-            activeSessions.put(sId, session);
+            manager.registerSession(sId, session);
 
             boolean result = manager.despawnDummy(sId);
             assertTrue(result);
             assertEquals(0, manager.getActiveCount());
             verify(storage).removeEntry(sId);
+            assertFalse(manager.isDummyPlayer(session.getDummyPlayer().getBukkitPlayer()));
+            assertFalse(manager.isDummyEntity(session.getDummyPlayer().getEntityId()));
             verify(session.getDummyPlayer()).remove();
 
             // Despawn non-existing returns false
@@ -186,8 +195,8 @@ class DummyManagerTest {
             UUID owner = UUID.randomUUID();
             UUID s1 = UUID.randomUUID();
             UUID s2 = UUID.randomUUID();
-            activeSessions.put(s1, createMockSession(s1, owner, "Steve", 1, null, true));
-            activeSessions.put(s2, createMockSession(s2, owner, "Steve", 2, null, true));
+            manager.registerSession(s1, createMockSession(s1, owner, "Steve", 1, null, true));
+            manager.registerSession(s2, createMockSession(s2, owner, "Steve", 2, null, true));
 
             int count = manager.despawnAllForOwner(owner);
             assertEquals(2, count);
@@ -199,12 +208,13 @@ class DummyManagerTest {
         void testDespawnAll() {
             for (int i = 0; i < 5; i++) {
                 UUID sId = UUID.randomUUID();
-                activeSessions.put(sId, createMockSession(sId, UUID.randomUUID(), "P" + i, i, null, true));
+                manager.registerSession(sId, createMockSession(sId, UUID.randomUUID(), "P" + i, i, null, true));
             }
 
             assertEquals(5, manager.getActiveCount());
             manager.despawnAll();
             assertEquals(0, manager.getActiveCount());
+            for (int i = 0; i < 5; i++) assertFalse(manager.isDummyEntity(i));
         }
     }
 
@@ -225,14 +235,16 @@ class DummyManagerTest {
 
             UUID s1 = UUID.randomUUID();
             UUID s2 = UUID.randomUUID();
-            activeSessions.put(s1, createMockSession(s1, UUID.randomUUID(), "Steve", 1, loc1, true));
-            activeSessions.put(s2, createMockSession(s2, UUID.randomUUID(), "Alex", 2, loc2, true));
+            manager.registerSession(s1, createMockSession(s1, UUID.randomUUID(), "Steve", 1, loc1, true));
+            manager.registerSession(s2, createMockSession(s2, UUID.randomUUID(), "Alex", 2, loc2, true));
 
             manager.handleWorldUnload("world_nether");
 
             assertEquals(1, manager.getActiveCount());
             assertTrue(manager.getSession(s2).isPresent());
             assertFalse(manager.getSession(s1).isPresent());
+            assertFalse(manager.isDummyEntity(1));
+            assertTrue(manager.isDummyEntity(2));
         }
     }
 
@@ -250,7 +262,7 @@ class DummyManagerTest {
             Location newLoc = new Location(world, 100, 70, 200);
 
             DummySession session = createMockSession(s1, UUID.randomUUID(), "Steve", 1, oldLoc, true);
-            activeSessions.put(s1, session);
+            manager.registerSession(s1, session);
 
             assertTrue(manager.teleportDummy(s1, newLoc));
             verify(session.getDummyPlayer(), times(1)).teleport(newLoc);
@@ -279,7 +291,7 @@ class DummyManagerTest {
             UUID s1 = UUID.randomUUID();
             Location loc1 = new Location(world, 10, 64, 10);
             DummySession session = createMockSession(s1, owner, "Steve", 1, loc1, true);
-            activeSessions.put(s1, session);
+            manager.registerSession(s1, session);
 
             assertTrue(manager.teleportNearestForOwner(player));
             verify(session.getDummyPlayer(), times(1)).teleport(playerLoc);
@@ -296,7 +308,7 @@ class DummyManagerTest {
         void testSetDummySkin() {
             UUID s1 = UUID.randomUUID();
             DummySession session = createMockSession(s1, UUID.randomUUID(), "Steve", 1, null, true);
-            activeSessions.put(s1, session);
+            manager.registerSession(s1, session);
 
             assertTrue(manager.setDummySkin(s1, "Alex"));
             verify(session.getDummyPlayer(), times(1)).setSkinByName("Alex");
@@ -308,7 +320,7 @@ class DummyManagerTest {
         void testSetDummyName() {
             UUID s1 = UUID.randomUUID();
             DummySession session = createMockSession(s1, UUID.randomUUID(), "Steve", 1, null, true);
-            activeSessions.put(s1, session);
+            manager.registerSession(s1, session);
 
             assertTrue(manager.setDummyName(s1, "Guard"));
             verify(session.getDummyPlayer(), times(1)).setCustomDisplayName("Guard");
@@ -330,7 +342,7 @@ class DummyManagerTest {
             UUID s1 = UUID.randomUUID();
             Location loc1 = new Location(world, 10, 64, 10);
             DummySession session = createMockSession(s1, owner, "Steve", 1, loc1, true);
-            activeSessions.put(s1, session);
+            manager.registerSession(s1, session);
 
             assertTrue(manager.setDummySkinForOwner(player, "Notch"));
             verify(session.getDummyPlayer(), times(1)).setSkinByName("Notch");
@@ -352,7 +364,7 @@ class DummyManagerTest {
             UUID s1 = UUID.randomUUID();
             Location loc1 = new Location(world, 10, 64, 10);
             DummySession session = createMockSession(s1, owner, "Steve", 1, loc1, true);
-            activeSessions.put(s1, session);
+            manager.registerSession(s1, session);
 
             assertTrue(manager.setDummyNameForOwner(player, "FarmGuard"));
             verify(session.getDummyPlayer(), times(1)).setCustomDisplayName("FarmGuard");

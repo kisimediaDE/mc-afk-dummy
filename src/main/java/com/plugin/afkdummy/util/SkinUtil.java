@@ -37,6 +37,62 @@ public final class SkinUtil {
 
     private static final String PROFILE_URL = "https://api.mojang.com/users/profiles/minecraft/%s";
     private static final ConcurrentHashMap<String, UUID> NAME_TO_UUID_CACHE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, java.util.concurrent.CompletableFuture<Property>> SKIN_REQUESTS = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, java.util.concurrent.CompletableFuture<UUID>> NAME_REQUESTS = new ConcurrentHashMap<>();
+    private static final java.util.concurrent.Semaphore REQUEST_SLOTS = new java.util.concurrent.Semaphore(8);
+
+    /** All callbacks that can touch entities are delivered on the server thread. */
+    private static <T> void deliver(Plugin plugin, Consumer<T> callback, T value) {
+        if (!plugin.isEnabled()) return;
+        if (Bukkit.isPrimaryThread()) callback.accept(value);
+        else Bukkit.getScheduler().runTask(plugin, () -> {
+            if (plugin.isEnabled()) callback.accept(value);
+        });
+    }
+
+    static <K, V> void request(K key, ConcurrentHashMap<K, V> cache,
+            ConcurrentHashMap<K, java.util.concurrent.CompletableFuture<V>> requests,
+            java.util.function.Supplier<V> fetch, Consumer<V> callback, Plugin plugin) {
+        if (!plugin.isEnabled()) return;
+        V cached = cache.get(key);
+        if (cached != null) {
+            deliver(plugin, callback, cached);
+            return;
+        }
+        var future = new java.util.concurrent.CompletableFuture<V>();
+        var existing = requests.putIfAbsent(key, future);
+        (existing != null ? existing : future).thenAccept(value -> deliver(plugin, callback, value));
+        if (existing != null) return;
+        // Bound blocking HTTP work, including bursts of distinct skin names.
+        if (!REQUEST_SLOTS.tryAcquire()) {
+            requests.remove(key, future);
+            future.complete(null);
+            return;
+        }
+        try {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                V result = null;
+                try {
+                    result = fetch.get();
+                    if (result != null && plugin.isEnabled()) {
+                        synchronized (cache) {
+                            if (cache.size() >= 256) cache.remove(cache.keys().nextElement());
+                            cache.put(key, result);
+                        }
+                    }
+                } finally {
+                    requests.remove(key, future);
+                    REQUEST_SLOTS.release();
+                    future.complete(result);
+                }
+            });
+        } catch (RuntimeException e) {
+            requests.remove(key, future);
+            REQUEST_SLOTS.release();
+            future.complete(null);
+            throw e;
+        }
+    }
 
     private SkinUtil() {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");
@@ -51,31 +107,23 @@ public final class SkinUtil {
      */
     public static void fetchSkinByNameAsync(String username, Consumer<Property> callback, Plugin plugin) {
         if (username == null || username.trim().isEmpty()) {
-            callback.accept(null);
+            if (plugin == null) callback.accept(null);
+            else deliver(plugin, callback, null);
             return;
         }
 
-        UUID cachedUUID = NAME_TO_UUID_CACHE.get(username.toLowerCase());
-        if (cachedUUID != null) {
-            fetchSkinAsync(cachedUUID, callback, plugin);
+        String name = username.trim().toLowerCase(java.util.Locale.ROOT);
+        if (!name.matches("[a-z0-9_]{1,16}")) {
+            deliver(plugin, callback, null);
             return;
         }
-
-        if (!plugin.isEnabled()) {
-            return;
-        }
-
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            UUID resolved = resolveUUIDByUsername(username, plugin);
+        request(name, NAME_TO_UUID_CACHE, NAME_REQUESTS, () -> resolveUUIDByUsername(name, plugin), resolved -> {
             if (resolved != null) {
-                NAME_TO_UUID_CACHE.put(username.toLowerCase(), resolved);
                 fetchSkinAsync(resolved, callback, plugin);
             } else {
-                if (plugin.isEnabled()) {
-                    Bukkit.getScheduler().runTask(plugin, () -> callback.accept(null));
-                }
+                callback.accept(null);
             }
-        });
+        }, plugin);
     }
 
     /**
@@ -121,26 +169,7 @@ public final class SkinUtil {
      * @param plugin     the owning plugin instance for scheduling
      */
     public static void fetchSkinAsync(UUID playerUUID, Consumer<Property> callback, Plugin plugin) {
-        Property cached = SKIN_CACHE.get(playerUUID);
-        if (cached != null) {
-            callback.accept(cached);
-            return;
-        }
-
-        if (!plugin.isEnabled()) {
-            return;
-        }
-
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Property result = fetchSkinBlocking(playerUUID, plugin);
-            if (result != null) {
-                SKIN_CACHE.put(playerUUID, result);
-            }
-
-            if (plugin.isEnabled()) {
-                Bukkit.getScheduler().runTask(plugin, () -> callback.accept(result));
-            }
-        });
+        request(playerUUID, SKIN_CACHE, SKIN_REQUESTS, () -> fetchSkinBlocking(playerUUID, plugin), callback, plugin);
     }
 
     /**
@@ -220,7 +249,7 @@ public final class SkinUtil {
      * Clears the internal skin cache.
      */
     public static void clearCache() {
-        SKIN_CACHE.clear();
-        NAME_TO_UUID_CACHE.clear();
+        synchronized (SKIN_CACHE) { SKIN_CACHE.clear(); }
+        synchronized (NAME_TO_UUID_CACHE) { NAME_TO_UUID_CACHE.clear(); }
     }
 }

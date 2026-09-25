@@ -1,5 +1,57 @@
 # Abnahme und Testgrenzen
 
+## Releaseprüfung 1.1.0 / 2.1.0 — 25.09.2026
+
+- Beide Releases mit Java 25 separat gebaut; jeweils 1704 Tests bestanden.
+- Jeweils alle 236 enthaltenen Java-Klassendateien byteidentisch mit den zuvor
+  getesteten optimierten Vorab-JARs (1.0.0 / 2.0.0). Versionsangaben und
+  Dokumentation wurden für die Veröffentlichung aktualisiert.
+- Plugin-Metadaten: 1.1.0 ausschließlich Paper 26.2, 2.1.0 ausschließlich
+  Paper 26.3. Lizenzhinweise vorhanden, keine Probe- oder bStats-Klassen in
+  den ausgelieferten JARs. Sources-ZIPs enthalten Lasttest-Bericht und Rohdaten.
+- Die historischen Lasttest-SHA256-Werte bleiben erhalten; neue Release-JARs
+  erhalten eigene Prüfsummen. Die unten beschriebenen Testgrenzen gelten weiter.
+
+## Lokaler Vorher/Nachher-Lasttest — 25.09.2026
+
+- Beide Versionen mit 0, 1, 3 und 6 Dummys und bis zu 192 KI-Mobs getestet;
+  zusätzlich 2000 synthetische Kolbenprüfungen und 10 Checkpoints pro Tick.
+- Sechs JVM-Läufe (26.2-Vergleich wiederholt), 12000 gemessene Ticks insgesamt,
+  keine Überschreitung von 50 ms. Keine echten Clients oder Produktionsfarmen.
+- Verbesserungen in den künstlich stark belasteten Plugin-Codepfaden gemessen.
+  Normale Laststufen zeigen ein gemischtes Bild, einschließlich langsamerer
+  26.2-Messwerte nach der Änderung. Keine allgemeine Performancegarantie.
+- Vollständige Ergebnisse, Aufbau, Einschränkungen und JAR-SHA256:
+  [benchmarks/README.md](benchmarks/README.md).
+
+## Performance-Überarbeitung — beide Builds, 25.09.2026
+
+- Paper 26.2 Build 123 / Plugin 1.0.0 und Paper 26.3 Build 41 / Plugin 2.0.0:
+  jeweils `test shadowJar integrationJar` mit Java 25 erfolgreich.
+  Jeweils **1704 Tests, 0 Fehler, 0 übersprungene Tests**.
+- Neue Regressionen prüfen zusammengefasste Speicheranforderungen, begrenzte
+  Writer-Warteschlange, unabhängige Snapshots, Shutdown-Schreibreihenfolge,
+  zusammengefasste Skin-Anfragen, Hauptthread-Zustellung bei Cache-Treffern,
+  Suchindex-Bereinigung, Kolben-Kollisionen mit einmaliger Positionsabfrage und
+  das Überspringen bereits aktiver Sitzungen beim verzögerten Wiederherstellen.
+- Beide endgültigen JARs auf den vorhandenen isolierten Servern unter
+  `127.0.0.1:25585` bzw. `127.0.0.1:25586` geprüft: sechs Dummys, Besitzer-Limit,
+  simulierte Besitzer-Logouts, konsistente Bukkit-/Entity-Registrierung und
+  Suchindizes, automatischer Ablauf aller sechs Sitzungen, leere Speicherung.
+- Anschließend jeweils sechs neue Sitzungen mit 60 Sekunden Laufzeit erzeugt,
+  beim Shutdown positive Restzeiten gespeichert und nach erneutem Start alle
+  sechs wiederhergestellt (`Restored: 6, Expired: 0, Failed: 0`). Nach Entfernen
+  aller Dummys null Online-Spieler und leere Speicherung. Testserver beendet.
+- Lokale Protokolle: `.integration/performance-26.2-first.log`,
+  `.integration/performance-26.2-restart.log` und entsprechend für 26.3.
+  Windows-Systemzählerwarnungen von OSHI traten auf; diese Tests sind keine
+  CPU-/MSPT-Benchmarks.
+- Kein neuer echter Client-, Fremdplugin-, Farmwachstums- oder Produktionslasttest.
+  Frühere Farmtests weiter unten sind historische Ergebnisse. Kein prozentualer
+  Performancegewinn behauptet. Details: [PERFORMANCE.md](PERFORMANCE.md).
+
+Die nachfolgenden Abschnitte dokumentieren die früheren Release-Prüfungen.
+
 ## AFKDummyLimited 2.0.0 — Paper 26.3 am 25.09.2026
 
 - JDK 25: `test shadowJar integrationJar` erfolgreich; 1700 Tests bestanden,

@@ -31,9 +31,9 @@ AFKDummyLimited bringt zeitlich begrenzte AFK-Dummies auf deinen Paper-Server. S
 
 ## Installation
 
-**Version 2.0.0 benötigt Paper 26.3 und Java 25.** Für Paper 26.2 bleibt [Version 1.0.0](https://github.com/kisimediaDE/mc-afk-dummy/releases/tag/v1.0.0) verfügbar.
+**Version 2.1.0 benötigt Paper 26.3 und Java 25.** Für Paper 26.2 verwende [Version 1.1.0](https://github.com/kisimediaDE/mc-afk-dummy/releases/tag/v1.1.0).
 
-Paper 26.3 wird derzeit als Alpha angeboten. Version 2.0.0 baut auf Paper 26.3 Build 41 auf; Testumfang und Grenzen stehen in [der Abnahme](docs/ABNAHME.md).
+Version 2.1.0 baut auf Paper 26.3 Build 41 (Alpha) auf; Version 1.1.0 auf Paper 26.2 Build 123. Testumfang und Grenzen stehen in [der Abnahme](docs/ABNAHME.md).
 
 1. **Herunterladen:** Auf der [Downloadseite](https://github.com/kisimediaDE/mc-afk-dummy/releases/latest) unter **Assets** die Datei `AFKDummyLimited-…jar` auswählen.
 2. **Server stoppen:** Den Server vollständig herunterfahren.
@@ -57,6 +57,10 @@ Lieber direkt per Befehl? So bleibt dein Dummy **eine Stunde und 30 Minuten**:
 Mit `/afkdummy status` siehst du die Restzeit. Mit `/afkdummy remove` beendest du die Sitzung vorzeitig.
 
 **Ab Werk:** ein Dummy pro Spieler, maximal sechs auf dem Server und bis zu 24 Stunden pro Sitzung.
+
+Die Performance-Überarbeitung steht mit 1.1.0 und 2.1.0 für beide Paper-Versionen bereit.
+Änderungen, getrennte Builds und Grenzen auf kleinen Servern stehen in
+[PERFORMANCE.md](docs/PERFORMANCE.md).
 
 ## Befehle
 

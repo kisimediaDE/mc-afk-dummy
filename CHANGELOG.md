@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 / 2.1.0 — 2026-09-25
+
+- Speicheranforderungen bündeln, JSON asynchron erzeugen und Schreibwarteschlange begrenzen.
+- Lineare Checkpoints, direkte Dummy-Suchindizes und günstigere Kolben-/Explosionsprüfungen.
+- Skin-Anfragen zusammenfassen und begrenzen; Hauptthread-Callbacks und Schutz vor veralteten Antworten.
+- Gemeinsame Quellen mit getrennten Builds für 1.1.0 / Paper 26.2 und 2.1.0 / Paper 26.3.
+- Unter synthetischer Spitzenlast weniger Arbeit in den optimierten Codepfaden. Normale Lasttests zeigen gemischte Ergebnisse; keine allgemeine TPS- oder RAM-Garantie.
+- Details und Einschränkungen: [docs/PERFORMANCE.md](docs/PERFORMANCE.md).
+
 ## 2.0.0 — 2026-09-25
 
 - Updated the development bundle, plugin API version and runtime version guard to Paper 26.3 build 41 (Alpha), Java 25.

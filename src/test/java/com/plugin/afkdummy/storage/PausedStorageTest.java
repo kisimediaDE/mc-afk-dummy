@@ -15,6 +15,9 @@ class PausedStorageTest {
         org.mockito.Mockito.when(plugin.getLogger()).thenReturn(java.util.logging.Logger.getAnonymousLogger());
         org.mockito.Mockito.when(plugin.isEnabled()).thenReturn(true);
         var queued = new java.util.ArrayList<Runnable>();
+        var mainTasks = new java.util.ArrayList<Runnable>();
+        org.mockito.Mockito.doAnswer(inv -> { mainTasks.add(inv.getArgument(1, Runnable.class)); return null; })
+                .when(scheduler).runTask(org.mockito.ArgumentMatchers.eq(plugin), org.mockito.ArgumentMatchers.any(Runnable.class));
         org.mockito.Mockito.doAnswer(inv -> { queued.add(inv.getArgument(1, Runnable.class)); return null; })
                 .when(scheduler).runTaskAsynchronously(org.mockito.ArgumentMatchers.eq(plugin), org.mockito.ArgumentMatchers.any(Runnable.class));
         try (var bukkit = org.mockito.Mockito.mockStatic(org.bukkit.Bukkit.class)) {
@@ -23,6 +26,7 @@ class PausedStorageTest {
             var data = new DummyData(UUID.randomUUID(), UUID.randomUUID(), "Owner", 1, "world", 0, 80, 0, 0, 0, 1L);
             data.setRemainingMillis(90000);
             storage.addEntry(data);
+            mainTasks.removeFirst().run();
             data.setRemainingMillis(45000);
             storage.saveSync();
             queued.getFirst().run();

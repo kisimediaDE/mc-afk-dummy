@@ -35,6 +35,23 @@ public class DummyData {
     /** Default constructor required by GSON deserialization. */
     public DummyData() {}
 
+    /** Detached snapshot for background serialization; preserves paused-time semantics. */
+    public DummyData copy() {
+        DummyData copy = new DummyData();
+        copy.sessionId = sessionId;
+        copy.ownerUniqueId = ownerUniqueId;
+        copy.ownerName = ownerName;
+        copy.dummyEntityId = dummyEntityId;
+        copy.worldName = worldName;
+        copy.x = x; copy.y = y; copy.z = z;
+        copy.yaw = yaw; copy.pitch = pitch;
+        copy.expirationTimestamp = expirationTimestamp;
+        copy.remainingMillis = remainingMillis;
+        copy.customName = customName;
+        copy.skinName = skinName;
+        return copy;
+    }
+
     /**
      * Constructs a complete DummyData entry with a unique session ID.
      */

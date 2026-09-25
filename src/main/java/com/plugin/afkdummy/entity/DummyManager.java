@@ -32,6 +32,8 @@ public class DummyManager {
     private final StorageManager storage;
     /** Map of Session ID -> DummySession */
     private final Map<UUID, DummySession> activeSessions;
+    private final Map<Integer, DummySession> sessionsByEntity = new ConcurrentHashMap<>();
+    private final Map<Player, DummySession> sessionsByPlayer = new ConcurrentHashMap<>();
     private BukkitTask cleanupTask;
     private BukkitTask debugTask;
 
@@ -55,17 +57,31 @@ public class DummyManager {
     public void startCleanupTask() {
         stopCleanupTask();
         cleanupTask = Bukkit.getScheduler().runTaskTimer(plugin, this::cleanupExpired, 20L, 20L);
-        debugTask = Bukkit.getScheduler().runTaskTimer(plugin, this::checkpoint, 600L, 600L);
+        debugTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            if (!activeSessions.isEmpty()) checkpoint();
+        }, 600L, 600L);
     }
 
     /**
      * Stops the periodic cleanup task.
      */
     public void checkpoint() {
-        for (DummySession session : activeSessions.values()) {
-            storage.getBySession(session.getSessionId()).ifPresent(data -> data.setRemainingMillis(session.getRemainingTimeMs()));
+        for (DummyData data : storage.getAllEntries()) {
+            DummySession session = activeSessions.get(data.getSessionId());
+            if (session != null) data.setRemainingMillis(session.getRemainingTimeMs());
         }
         storage.saveAsync();
+    }
+
+    void registerSession(UUID id, DummySession session) {
+        activeSessions.put(id, session);
+        sessionsByEntity.put(session.getDummyPlayer().getEntityId(), session);
+        sessionsByPlayer.put(session.getDummyPlayer().getBukkitPlayer(), session);
+    }
+
+    private void unindex(DummySession session) {
+        sessionsByEntity.remove(session.getDummyPlayer().getEntityId(), session);
+        sessionsByPlayer.remove(session.getDummyPlayer().getBukkitPlayer(), session);
     }
 
     public void stopCleanupTask() {
@@ -135,7 +151,7 @@ public class DummyManager {
             // Create the session and pre-register it so PlayerSpawnLocationEvent finds it during placeNewPlayer()
             long expirationTimestamp = System.currentTimeMillis() + durationMs;
             DummySession session = new DummySession(sessionId, dummyPlayer, ownerUUID, ownerName, expirationTimestamp);
-            activeSessions.put(sessionId, session);
+            registerSession(sessionId, session);
 
             try {
                 // Spawn it into the world
@@ -143,6 +159,7 @@ public class DummyManager {
             } catch (Exception e) {
                 dummyPlayer.remove();
                 activeSessions.remove(sessionId);
+                unindex(session);
                 throw e;
             }
 
@@ -187,14 +204,20 @@ public class DummyManager {
      * @return true if a dummy was found and despawned
      */
     public boolean despawnDummy(UUID sessionId) {
+        return despawnDummy(sessionId, true);
+    }
+
+    private boolean despawnDummy(UUID sessionId, boolean save) {
         DummySession session = activeSessions.remove(sessionId);
         if (session == null) {
             return false;
         }
 
+        unindex(session);
         session.despawn();
-        storage.removeEntry(sessionId);
-        checkpoint();
+        if (save) storage.removeEntry(sessionId);
+        else storage.removeEntry(sessionId, false);
+        if (save) checkpoint();
 
         plugin.getLogger().info("Despawned dummy for " + session.getOwnerName() + " (session: " + sessionId + ")");
         DebugLogger.log(String.format("Despawned dummy for owner: %s, Session: %s", session.getOwnerName(), sessionId));
@@ -210,8 +233,9 @@ public class DummyManager {
     public int despawnAllForOwner(UUID ownerUUID) {
         List<DummySession> userSessions = getSessionsByOwner(ownerUUID);
         for (DummySession session : userSessions) {
-            despawnDummy(session.getSessionId());
+            despawnDummy(session.getSessionId(), false);
         }
+        if (!userSessions.isEmpty()) checkpoint();
         return userSessions.size();
     }
 
@@ -352,6 +376,8 @@ public class DummyManager {
         }
 
         activeSessions.clear();
+        sessionsByEntity.clear();
+        sessionsByPlayer.clear();
     }
 
     /**
@@ -372,6 +398,8 @@ public class DummyManager {
 
         for (DummyData data : entries) {
             UUID sessionId = data.getSessionId();
+            // Commands may create sessions before the delayed startup restoration runs.
+            if (activeSessions.containsKey(sessionId)) continue;
 
             // Check if the session has expired
             if (data.isExpired()) {
@@ -416,7 +444,7 @@ public class DummyManager {
                         sessionId, dummyPlayer, data.getOwnerUUID(), data.getOwnerName(),
                         Math.addExact(System.currentTimeMillis(), data.getRemainingTimeMs()));
 
-                activeSessions.put(sessionId, session);
+                registerSession(sessionId, session);
 
                 try {
                     dummyPlayer.spawn();
@@ -428,6 +456,7 @@ public class DummyManager {
                 } catch (Exception spawnEx) {
                     dummyPlayer.remove();
                     activeSessions.remove(sessionId);
+                    unindex(session);
                     throw spawnEx;
                 }
 
@@ -551,7 +580,8 @@ public class DummyManager {
             if (session.isExpired()) {
                 session.despawn();
                 iterator.remove();
-                storage.removeEntry(entry.getKey());
+                unindex(session);
+                storage.removeEntry(entry.getKey(), false);
                 changed = true;
 
                 plugin.getLogger().info("Session expired for " + session.getOwnerName()
@@ -589,6 +619,7 @@ public class DummyManager {
                         + "' unloading — despawning dummy for " + session.getOwnerName());
                 session.despawn();
                 iterator.remove();
+                unindex(session);
                 storage.removeEntry(entry.getKey());
             }
         }
@@ -689,8 +720,7 @@ public class DummyManager {
      * @return true if the entity is a managed dummy
      */
     public boolean isDummyEntity(int entityId) {
-        return activeSessions.values().stream()
-                .anyMatch(s -> s.getDummyPlayer().getEntityId() == entityId);
+        return sessionsByEntity.containsKey(entityId);
     }
 
     /**
@@ -700,9 +730,7 @@ public class DummyManager {
      * @return an Optional containing the session if found
      */
     public Optional<DummySession> getSessionByEntityId(int entityId) {
-        return activeSessions.values().stream()
-                .filter(s -> s.getDummyPlayer().getEntityId() == entityId)
-                .findFirst();
+        return Optional.ofNullable(sessionsByEntity.get(entityId));
     }
 
     /**
@@ -712,8 +740,7 @@ public class DummyManager {
      * @return true if this player is a managed dummy
      */
     public boolean isDummyPlayer(Player player) {
-        return activeSessions.values().stream()
-                .anyMatch(s -> s.getDummyPlayer().getBukkitPlayer().equals(player));
+        return sessionsByPlayer.containsKey(player);
     }
 
     /**
@@ -723,9 +750,7 @@ public class DummyManager {
      * @return an Optional containing the session if found
      */
     public Optional<DummySession> getSessionByPlayer(Player player) {
-        return activeSessions.values().stream()
-                .filter(s -> s.getDummyPlayer().getBukkitPlayer().equals(player))
-                .findFirst();
+        return Optional.ofNullable(sessionsByPlayer.get(player));
     }
 
     /**

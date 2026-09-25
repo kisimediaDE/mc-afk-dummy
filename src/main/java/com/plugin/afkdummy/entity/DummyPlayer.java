@@ -65,6 +65,7 @@ public class DummyPlayer {
     private boolean spawned = false;
     private boolean registrationAttempted;
     private boolean closed;
+    private long skinRevision;
 
     /**
      * Creates a new DummyPlayer with full customization support.
@@ -209,8 +210,9 @@ public class DummyPlayer {
      * Loads a custom skin by player username.
      */
     private void loadCustomSkin(String username, GameProfile profile) {
+        long requestRevision = ++skinRevision;
         SkinUtil.fetchSkinByNameAsync(username, (Property textures) -> {
-            if (closed) return;
+            if (closed || requestRevision != skinRevision) return;
             if (textures != null) {
                 currentProfile = SkinUtil.applySkin(currentProfile, textures);
                 if (spawned) {
@@ -227,8 +229,9 @@ public class DummyPlayer {
      * Loads the owner's skin asynchronously and applies it to the GameProfile.
      */
     private void loadOwnerSkin(GameProfile profile) {
+        long requestRevision = ++skinRevision;
         SkinUtil.fetchSkinAsync(ownerUUID, (Property textures) -> {
-            if (closed) return;
+            if (closed || requestRevision != skinRevision) return;
             if (textures != null) {
                 currentProfile = SkinUtil.applySkin(currentProfile, textures);
 

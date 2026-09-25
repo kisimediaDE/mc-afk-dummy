@@ -144,11 +144,13 @@ public class PlayerListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPistonExtend(BlockPistonExtendEvent event) {
+        var occupied = occupiedBlocks(event.getBlock().getWorld());
+        if (occupied.isEmpty()) return;
         BlockFace direction = event.getDirection();
 
         // Check piston head destination
         Location headTarget = event.getBlock().getRelative(direction).getLocation();
-        if (isAnyDummyAt(headTarget)) {
+        if (occupied.contains(BlockPosition.of(headTarget))) {
             event.setCancelled(true);
             return;
         }
@@ -161,7 +163,7 @@ public class PlayerListener implements Listener {
                     direction.getModZ()
             );
 
-            if (isAnyDummyAt(targetLoc)) {
+            if (occupied.contains(BlockPosition.of(targetLoc))) {
                 event.setCancelled(true);
                 return;
             }
@@ -173,6 +175,8 @@ public class PlayerListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPistonRetract(BlockPistonRetractEvent event) {
+        var occupied = occupiedBlocks(event.getBlock().getWorld());
+        if (occupied.isEmpty()) return;
         BlockFace direction = event.getDirection();
 
         for (Block block : event.getBlocks()) {
@@ -183,7 +187,7 @@ public class PlayerListener implements Listener {
                     direction.getModZ()
             );
 
-            if (isAnyDummyAt(targetLoc) || isAnyDummyAt(block.getLocation())) {
+            if (occupied.contains(BlockPosition.of(targetLoc)) || occupied.contains(BlockPosition.of(block.getLocation()))) {
                 event.setCancelled(true);
                 return;
             }
@@ -218,11 +222,14 @@ public class PlayerListener implements Listener {
 
     private void resetDummyVelocityNear(Location location) {
         if (location == null || location.getWorld() == null) return;
-
-        for (Entity entity : location.getWorld().getNearbyEntities(location, 10, 10, 10)) {
-            if (isDummy(entity)) {
+        for (DummySession session : dummyManager.getAllSessions().values()) {
+            Location dummy = session.getLocation();
+            if (dummy != null && location.getWorld().equals(dummy.getWorld())
+                    && Math.abs(dummy.getX() - location.getX()) <= 10
+                    && Math.abs(dummy.getY() - location.getY()) <= 10
+                    && Math.abs(dummy.getZ() - location.getZ()) <= 10) {
                 org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
-                    entity.setVelocity(new Vector(0, 0, 0));
+                    if (session.isSpawned()) session.getDummyPlayer().getBukkitPlayer().setVelocity(new Vector(0, 0, 0));
                 });
             }
         }
@@ -305,19 +312,21 @@ public class PlayerListener implements Listener {
         return dummyManager.isDummyPlayer(player);
     }
 
-    private boolean isAnyDummyAt(Location blockLoc) {
-        if (blockLoc == null || blockLoc.getWorld() == null) return false;
-
-        for (DummySession session : dummyManager.getAllSessions().values()) {
-            Location dummyLoc = session.getLocation();
-            if (dummyLoc != null && dummyLoc.getWorld() != null
-                    && dummyLoc.getWorld().equals(blockLoc.getWorld())
-                    && dummyLoc.getBlockX() == blockLoc.getBlockX()
-                    && dummyLoc.getBlockY() == blockLoc.getBlockY()
-                    && dummyLoc.getBlockZ() == blockLoc.getBlockZ()) {
-                return true;
-            }
+    private record BlockPosition(int x, int y, int z) {
+        static BlockPosition of(Location location) {
+            return new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         }
-        return false;
+    }
+
+    // Read each dummy location once per piston event, rather than once per pushed block.
+    private java.util.Set<BlockPosition> occupiedBlocks(org.bukkit.World world) {
+        var sessions = dummyManager.getAllSessions();
+        if (sessions.isEmpty()) return java.util.Set.of();
+        var positions = new java.util.HashSet<BlockPosition>();
+        for (DummySession session : sessions.values()) {
+            Location location = session.getLocation();
+            if (location != null && world.equals(location.getWorld())) positions.add(BlockPosition.of(location));
+        }
+        return positions;
     }
 }

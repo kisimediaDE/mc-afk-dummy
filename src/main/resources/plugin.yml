@@ -2,7 +2,7 @@ name: AFKDummy
 version: '${version}'
 description: '${description}'
 main: com.plugin.afkdummy.AFKDummyPlugin
-api-version: '26.3'
+api-version: '${targetPaper}'
 authors:
   - AFKDummyLimited contributors
   - FakePlayerFarm (original project)
