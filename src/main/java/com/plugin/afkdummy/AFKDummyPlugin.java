@@ -42,8 +42,8 @@ public class AFKDummyPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (!getServer().getMinecraftVersion().equals("26.2")) {
-            getLogger().severe("AFKDummyLimited supports Paper 26.2 only; disabling safely.");
+        if (!getServer().getMinecraftVersion().equals("26.3")) {
+            getLogger().severe("AFKDummyLimited 2.x supports Paper 26.3 only; use 1.0.0 for Paper 26.2. Disabling safely.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }

@@ -7,7 +7,7 @@
 Setze einen Dummy, wähle die Laufzeit und geh offline.<br>
 Dein Platz an der Farm bleibt besetzt — bis die Zeit abläuft.
 
-![Paper 26.2](https://img.shields.io/badge/PAPER-26.2-38bdf8?style=for-the-badge&labelColor=0f172a)
+![Paper 26.3](https://img.shields.io/badge/PAPER-26.3-38bdf8?style=for-the-badge&labelColor=0f172a)
 ![Java 25](https://img.shields.io/badge/JAVA-25-a78bfa?style=for-the-badge&labelColor=0f172a)
 ![Kostenlos](https://img.shields.io/badge/KOSTENLOS-OHNE_ITEMKOSTEN-34d399?style=for-the-badge&labelColor=0f172a)
 
@@ -31,7 +31,9 @@ AFKDummyLimited bringt zeitlich begrenzte AFK-Dummies auf deinen Paper-Server. S
 
 ## Installation
 
-**Du brauchst Paper 26.2 und Java 25.** Paper 26.3 wird nicht unterstützt.
+**Version 2.0.0 benötigt Paper 26.3 und Java 25.** Für Paper 26.2 bleibt [Version 1.0.0](https://github.com/kisimediaDE/mc-afk-dummy/releases/tag/v1.0.0) verfügbar.
+
+Paper 26.3 wird derzeit als Alpha angeboten. Version 2.0.0 baut auf Paper 26.3 Build 41 auf; Testumfang und Grenzen stehen in [der Abnahme](docs/ABNAHME.md).
 
 1. **Herunterladen:** Auf der [Downloadseite](https://github.com/kisimediaDE/mc-afk-dummy/releases/latest) unter **Assets** die Datei `AFKDummyLimited-…jar` auswählen.
 2. **Server stoppen:** Den Server vollständig herunterfahren.

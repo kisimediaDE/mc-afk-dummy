@@ -1,7 +1,7 @@
 name: AFKDummyProbe
 version: '1'
 main: com.plugin.afkdummy.probe.Probe
-api-version: '26.2'
+api-version: '26.3'
 depend: [AFKDummy]
 commands:
   afkprobe:

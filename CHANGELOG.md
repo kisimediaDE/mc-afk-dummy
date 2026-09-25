@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.0 — 2026-09-25
+
+- Updated the development bundle, plugin API version and runtime version guard to Paper 26.3 build 41 (Alpha), Java 25.
+- Uses Bukkit's invulnerability API after removal of the previous internal setter in 26.3.
+- Version 1.0.0 remains the release for Paper 26.2; version 2.0.0 targets Paper 26.3 only.
+- Keeps the existing `plugins/AFKDummy` data directory, configuration, commands and persisted session format.
+- See `docs/ABNAHME.md` for version-specific verification and remaining client/plugin test limits.
+
 ## 1.0.0 — 2026-09-25
 
 First separately branded AFKDummyLimited release, based on upstream 1.0.3

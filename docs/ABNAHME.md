@@ -1,5 +1,34 @@
 # Abnahme und Testgrenzen
 
+## AFKDummyLimited 2.0.0 — Paper 26.3 am 25.09.2026
+
+- JDK 25: `test shadowJar integrationJar` erfolgreich; 1700 Tests bestanden,
+  keine Fehler oder übersprungenen Tests.
+- Release-JAR auf einem separaten lokalen Paper `26.3-41-a15fed9` (Alpha)
+  unter `127.0.0.1:25586` gestartet. Paper-JAR-SHA256:
+  `2b77166ee61886a9bc9ab33dc9e4847fa3538b36d9ba6e5f2fa7ed90973aa748`.
+- Dummy am Zielort erzeugt, zweiter Spawn desselben Besitzers abgewiesen,
+  nach simuliertem Besitzer-Logout weiterhin korrekt registriert und nach
+  15 Sekunden automatisch entfernt.
+- Sechs Dummies gleichzeitig erzeugt und nach simulierten Besitzer-Logouts
+  mit Bukkit-Spielerliste, Welt-Spielerliste und gültigen Entities abgeglichen.
+  Ein vorheriger Versuch startete vor Ablauf der ersten Sitzung und wurde
+  erwartungsgemäß am Serverlimit abgewiesen; nach Bereinigung bestand der Sechser-Test.
+- Beim Shutdown sechs Sitzungen mit rund 170 Sekunden Restzeit gespeichert.
+  Rund eine Minute später alle sechs erfolgreich mit derselben Restzeit
+  wiederhergestellt (`Restored: 6, Expired: 0, Failed: 0`). Registrierung
+  erneut geprüft; nach Entfernen aller Dummies null Online-Spieler.
+- Paketprüfung: Lizenzhinweise vorhanden, keine bStats- oder Probe-Klassen in
+  der Release-JAR; Quellpaket enthält keine Serverdaten oder Build-Caches.
+- Kein echter 26.3-Client-Join, kein Vier-Personen-Test und kein Test mit den
+  unten genannten Fremd-Plugins durchgeführt. Der frühere Livebericht gilt
+  ausschließlich für den damaligen 26.2-Testbuild.
+- Paper 26.3 wird noch als Alpha angeboten. Version 1.0.0 bleibt unverändert
+  für Paper 26.2 verfügbar; Version 2.0.0 unterstützt ausschließlich 26.3.
+
+Die folgenden Abschnitte dokumentieren historische Prüfungen für Version 1.0.0
+und deren Vorläufer auf Paper 26.2.
+
 ## AFKDummyLimited 1.0.0 — Releaseprüfung am 25.09.2026
 
 - JDK 25: `test shadowJar integrationJar --offline --no-daemon` erfolgreich.
@@ -17,7 +46,7 @@
 - Der Vier-Personen-Livebericht unten gilt für den vorherigen Testbuild, nicht
   als erneuter Clienttest dieser Release-JAR. Paper 26.3 bleibt ungeprüft.
 
-## Lokal geprüft
+## Historisch lokal geprüft — Paper 26.2
 
 - JDK 25, Paper **26.2-123-5001879**, isolierter Server auf 127.0.0.1:25585.
 - Paper-JAR-SHA256: `7b7b3b43c009103e1971a0576c26f655a7dd9b56a0a2a4438e352c03a7fecd08`.

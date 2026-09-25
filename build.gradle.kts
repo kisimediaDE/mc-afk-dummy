@@ -5,8 +5,8 @@ plugins {
 }
 
 group = "com.plugin"
-version = "1.0.0"
-description = "AFKDummyLimited - Free timed farm dummies for Paper 26.2"
+version = "2.0.0"
+description = "AFKDummyLimited - Free timed farm dummies for Paper 26.3"
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(25))
@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("26.2.build.123-stable")
+    paperweight.paperDevBundle("26.3.build.41-alpha")
     implementation("com.google.code.gson:gson:2.13.1")
 
     // Test dependencies

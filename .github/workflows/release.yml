@@ -66,7 +66,9 @@ jobs:
           ## Installation
           Die Datei `AFKDummyLimited-*.jar` herunterladen und bei gestopptem Server in `plugins` legen. Eine vorhandene AFKDummy-JAR vorher entfernen.
 
-          Voraussetzung: **Paper 26.2 und Java 25**. Den vorhandenen Ordner `plugins/AFKDummy` beim Update behalten.
+          Voraussetzung: **Paper 26.3 und Java 25**. Den vorhandenen Ordner `plugins/AFKDummy` beim Update behalten.
+
+          Version 2.0.0 ist für Paper 26.3 (getesteter Build: 41, Alpha). Für Paper 26.2 weiterhin [Version 1.0.0](https://github.com/kisimediaDE/mc-afk-dummy/releases/tag/v1.0.0) verwenden. Paper 26.3 wird derzeit als Alpha angeboten. Testumfang und Grenzen stehen in `docs/ABNAHME.md` im Sources-ZIP.
 
           Das Sources-ZIP enthält den Quellcode; `SHA256SUMS` enthält die Prüfsummen der Downloads.
           EOF

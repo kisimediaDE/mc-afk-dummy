@@ -334,7 +334,7 @@ public class DummyPlayer {
 
             // Post-spawn configuration
             handle.setGameMode(GameType.SURVIVAL);
-            handle.setInvulnerable(true);
+            handle.getBukkitEntity().setInvulnerable(true);
             handle.setNoGravity(true);
             handle.setSilent(true);
             handle.getBukkitEntity().setCollidable(false);
